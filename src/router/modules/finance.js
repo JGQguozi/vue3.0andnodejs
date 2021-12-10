@@ -4,6 +4,7 @@ export default {
   path: "/",
   redirect: { name: "Finance" },
   component: layoutHeaderAside,
+  title: "财务管理",
   children: [
     {
       path: "/finance/index",

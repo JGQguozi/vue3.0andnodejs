@@ -188,10 +188,14 @@ router.get("/api/userInfo", async (req, res) => {
     "Access-Control-Allow-Headers",
     "Content-Type,Access-Control-Allow-Headers,Authorization,X-Requested-With"
   );
-  console.log("获取用户数据", req.headers);
   let result = await UserTodo.findOne({
     user_token: req.headers.authorization
   });
-  console.log("用户数据结果", result);
+  res.json({
+    message: "获取用户数据成功",
+    data: result,
+    code: 200
+  });
+  // res.send({ message: "获取用户数据成功", data: result, code: 200 });
 });
 module.exports = router;

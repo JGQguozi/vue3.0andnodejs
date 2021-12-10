@@ -16,8 +16,7 @@ router.get("/api/getTest", (req, res) => {
   UserTodo.find({}, (err, data) => {
     if (err) throw new Error("获取失败");
     datas = data;
-    res.status(200);
-    res.send({ message: "获取成功", data: datas, code: 200 });
+    res.status(200).send({ message: "获取成功", data: datas, code: 200 });
   });
 });
 

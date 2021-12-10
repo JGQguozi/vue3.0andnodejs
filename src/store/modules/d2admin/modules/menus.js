@@ -4,37 +4,80 @@ export default {
   namespaced: true,
   state: {
     menus: [],
-    whiteList: ["/login", "/nofind"]
+    routerMenus: [],
+    navigationTreeMenus: [],
+    whiteList: ["/login", "/nofind", "/index"]
   },
   getters: {
-    getTreeMenus: (state) => {
-      const calldatas = state.menus.filter((filterItem) => {
-        return state.whiteList.indexOf(filterItem.path) === -1;
-      });
-      return toRaw(calldatas);
+    getRouterMenus: (state) => {
+      return toRaw(state.routerMenus);
     },
-    getChild: (state, getters) => {
-      let res = [];
-      // console.log("getters.getChild", getters.getChild);
-      state.menus.map((route) => {
-        if (route.children) {
-          console.log("aaaaaaa");
-          res = getters.getChild(route.children);
-        } else {
-          res.push(route.path);
-        }
-      });
-
-      return res;
+    getNavigationMenus: (state) => {
+      return toRaw(state.navigationTreeMenus);
+    },
+    getMenus: (state) => {
+      return toRaw(state.menus);
+    },
+    getAllRouterMenus: (state) => {
+      return state;
     }
   },
   mutations: {
     setMenus(state, datas) {
       state.menus = datas;
-      console.log("menus==>", toRaw(state.menus));
     },
-    setLoading(state, isShowLoading) {
-      alert(2);
+    setRouterMenus: (state) => {
+      const whiteList = state.whiteList;
+      let arr = [];
+      state.menus.map((mapItem) => {
+        if (mapItem.children) {
+          mapItem.children.filter((mapItemChildItem) => {
+            if (whiteList.indexOf(mapItemChildItem.path) === -1) {
+              arr.push(mapItemChildItem.path);
+            }
+          });
+        } else {
+          if (whiteList.indexOf(mapItem.path) === -1) {
+            arr.push(mapItem.path);
+          }
+        }
+      });
+      state.routerMenus = [...arr];
+    },
+    setNavigationMenus: (state) => {
+      const whiteList = state.whiteList;
+      const menus = [...state.menus];
+      const newMenus = menus.filter((filterItem) => {
+        if (filterItem.children) {
+          filterItem.children = filterItem.children.filter(
+            (filterChildrenItem) => {
+              return whiteList.indexOf(filterChildrenItem.path) === -1;
+            }
+          );
+        }
+        return whiteList.indexOf(filterItem.path) === -1;
+      });
+
+      state.navigationTreeMenus = newMenus;
+    }
+  },
+  actions: {
+    setMenusActions({ commit }, data) {
+      return new Promise((resolve, reject) => {
+        commit("setMenus", data);
+        resolve();
+      });
+    },
+    // 设置路由对应数据
+    routerSetActin({ commit }) {
+      commit("setRouterMenus");
+      commit("setNavigationMenus");
+    },
+    // 路由数据转变操作
+    async routerTransformCommit({ dispatch, state }, data) {
+      await dispatch("setMenusActions", data);
+      dispatch("routerSetActin");
+      console.log("执行routerTransformCommit最后完成", state);
     }
   }
 };

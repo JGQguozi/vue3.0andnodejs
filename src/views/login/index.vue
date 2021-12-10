@@ -157,7 +157,6 @@ import { useStore } from "vuex";
 import ForgetAndRegisterPassword from "@/components/ForgetAndRegisterPassword.vue";
 import localforage from "localforage";
 import { asyncRoutesAlready } from "@/utils/asyncRouter.js";
-import store from "@/store/index.js";
 interface FormState {
   name: string;
   password: string;
@@ -251,6 +250,7 @@ export default defineComponent({
       },
       loginFun: async (datas: any) => {
         let result: any = await login(datas);
+        console.log("登陆result===>", result);
         if (result) {
           const { token } = result;
           if (token) {
@@ -262,8 +262,8 @@ export default defineComponent({
             asyncRoutesAlready().then((routesData: any) => {
               message.success("登录成功");
 
-              console.log("登录成功", store);
-              // router.push("/");
+              console.log("登录成功", routesData);
+              router.push("/");
             });
 
             // router.addRoute({

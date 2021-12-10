@@ -66,6 +66,7 @@ service.interceptors.response.use(
         break;
     }
     message.error(msg != "" ? msg : "接口报错，前往查看");
+    console.log("拦截");
     return Promise.reject(error);
   }
 );
@@ -77,9 +78,11 @@ export function get(url, params = {}) {
         params: params
       })
       .then((response) => {
-        resolve(response.data);
+        console.log("结果3");
+        resolve(response);
       })
       .catch((err) => {
+        console.log("结果4");
         reject(err);
       });
   });
@@ -89,9 +92,11 @@ export function post(url, data = {}) {
   return new Promise((resolve, reject) => {
     service.post(url, data).then(
       (response) => {
+        console.log("结果1");
         resolve(response);
       },
       (err) => {
+        console.log("结果2");
         reject(err);
       }
     );

@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import NProgress from 'nprogress'
-import { useStore } from "vuex";
+import { asyncRoutesAlready } from "@/utils/asyncRouter.js";
 import 'nprogress/nprogress.css' // 注意要引入css样式文件
 // 路由数据
 import routes from './routes'
+import store from "@/store/index.js";
 import localforage from "localforage";
-import { asyncRoutesAlready } from "@/utils/asyncRouter.js";
 const router = createRouter({
   history: createWebHashHistory(),
   routes
@@ -18,11 +18,11 @@ NProgress.configure({
   trickleSpeed: 200, // 自动递增间隔    
   minimum: 0.3 // 初始化时的最小百分比
 })
-const $store = useStore();
 router.beforeEach(async (to: any, from: any, next: any) => {
   NProgress.start();
-  // console.log("路由to", to)
-  console.log("路由from", from)
+  console.log("路由to", to)
+  console.log('store===>',store.state.d2admin.menus)
+  // console.log("路由from", from)
   const myuniquekey = await localforage.getItem("myuniquekey")
   console.log("myuniquekey", myuniquekey)
   // if (!myuniquekey) {
@@ -32,11 +32,50 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     // if (to.matched.length) next()
     // next("/nofind")
     // console.log("quanxuan", result,to)
-    next()
     // router.push(to.path)
   // });
   // }
   // next()
+  // if()
+
+  const { whiteList, routerMenus, menus } = store.state.d2admin.menus
+  if (menus.length === 0) { 
+    // 说明数据产库数据被清理
+    asyncRoutesAlready().then((routesData: any) => { 
+      next()
+    })
+    // asyncRoutesAlready().then((routesData: any) => {
+    //   console.log('routesData',routesData)
+    //   if (whiteList.indexOf(to.path) !== -1) {
+    //     // 白名单(内容直接前往)
+    //     next()
+    //   } else { 
+    //     // 非白名单内容
+    //     if (routerMenus.indexOf(to.path) === -1) {
+    //       // 不在路由权限
+    //       next("/nofind")
+    //     } else { 
+          
+    //     }
+
+    //   }
+    // });
+    // return
+  }
+  if (whiteList.indexOf(to.path) !== -1) {
+    // 白名单(内容直接前往)
+    next()
+  } else { 
+    // 非白名单内容
+    if (routerMenus.indexOf(to.path) === -1) {
+      // 不在路由权限
+      next("/nofind")
+    } else { 
+      next()
+    }
+
+  }
+    
 
   
   

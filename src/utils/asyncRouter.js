@@ -1,6 +1,8 @@
 import allRoutes from "@/router/routes.ts";
 import router from "@/router";
 import store from "@/store/index.js";
+import { userInfo } from "@/api/index.js";
+import localforage from "localforage";
 
 /**
  * 判断当前角色是否有访问权限
@@ -52,6 +54,23 @@ export function getAsyncTree(routes) {
 
   return res;
 }
+/**
+ * 公共设置路由权限数据
+ *
+ */
+export function setJurisdictionRouter() {
+  const userRole = store.getters["d2admin/user/getUserRole"];
+  const asyncRoutesData = filterAsyncRoutes(allRoutes, userRole);
+
+  console.log("权限路由完成", store);
+
+  // const getRouterMenus = store.getters["d2admin/menus/getRouterMenus"];
+  // const getChild = store.getters["d2admin/menus/getChild"];
+  // 触发对应所有权限路由事件
+  store.dispatch("d2admin/menus/routerTransformCommit", asyncRoutesData);
+  const getAllRouterMenus = store.getters["d2admin/menus/getAllRouterMenus"];
+  return getAllRouterMenus;
+}
 
 /**
  * 获取到对应角色路由数据后，回抛告诉用户路由克最新跳转
@@ -60,17 +79,16 @@ export function getAsyncTree(routes) {
  * @return {[promise]} [告诉用户准备完成]
  */
 export function asyncRoutesAlready() {
-  const userRole = store.getters["d2admin/user/getUserRole"];
-  // const asyncRoutesData = filterAsyncRoutes(allRoutes, ["admin", "common"]);
-  const asyncRoutesData = filterAsyncRoutes(allRoutes, userRole);
-  // asyncRoutesData.map((mapItem) => {
-  //   router.addRoute(mapItem);
-  // });
+  const userInfoStore = store.getters["d2admin/user/getUserInfo"];
+  if (!userInfoStore.user_id) {
+    userInfo({}).then((result) => {
+      if (result) {
+        localforage.setItem("myuniquekey", result.user_token);
+        store.commit("d2admin/user/setUserInfo", result);
+        return Promise.resolve(setJurisdictionRouter());
+      }
+    });
+  }
 
-  console.log("权限路由完成", store);
-  store.commit("d2admin/menus/setMenus", asyncRoutesData);
-  const getTreeMenus = store.getters["d2admin/menus/getTreeMenus"];
-  // const getChild = store.getters["d2admin/menus/getChild"];
-  console.log("getTreeMenus");
-  return Promise.resolve(asyncRoutesData);
+  return Promise.resolve(setJurisdictionRouter());
 }

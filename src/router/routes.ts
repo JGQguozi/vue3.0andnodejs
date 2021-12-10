@@ -1,11 +1,13 @@
 import { RouteRecordRaw } from 'vue-router'
 import main from './modules/main.js'
 import finance from './modules/finance.js'
+import server from './modules/server.js'
 
 
 const frameInt = [
   main,
-  finance
+  finance,
+  server
 ]
 
 const frameOut = [

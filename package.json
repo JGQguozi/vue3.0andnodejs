@@ -23,6 +23,7 @@
     "localforage": "^1.10.0",
     "mongodb": "^4.0.1",
     "mongoose": "^5.13.3",
+    "nodemon": "^2.0.15",
     "nprogress": "^0.2.0",
     "vue": "^3.0.0",
     "vue-axios": "^3.2.4",
